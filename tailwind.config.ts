@@ -11,7 +11,11 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-      },
+          },
+          screens: {
+            phone: { max: "1024px" },
+            pc: { min: "1025px" },
+          },
     },
   },
   plugins: [],
