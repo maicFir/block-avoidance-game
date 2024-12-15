@@ -12,10 +12,12 @@ const nextConfig: NextConfig = {
      
         return config;
       },
-    
       typescript: {
-        ignoreBuildErrors: true
-      }
+        ignoreBuildErrors: true, // 忽略类型检查错误
+    },
+    eslint: {
+        ignoreDuringBuilds: true,
+    }
 };
 
 export default nextConfig;

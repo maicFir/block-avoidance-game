@@ -13,7 +13,6 @@ import {
 import useSound from "use-sound";
 import { message } from "@comp/global";
 import { CoinIcon, LiveIcon, VoiceIcon, CloseVoiceIcon } from "@comp/svg-icon";
-import { useGameVoice } from "@hooks/index";
 // import { queryGmgnSymbolListApi } from "@src/services/api";
 import { symbolData } from "@src/api/game/mock";
 import Help from "./help";
@@ -239,6 +238,7 @@ const Index: React.FC<Props> = (props) => {
           display={"flex"}
           alignItems={"center"}
           justifyContent={"center"}
+          paddingTop={"10px"}
         >
           Please press Enter to start the game <Help />
         </Typography>
