@@ -1,0 +1,8 @@
+.app {
+  .alert-message {
+    @apply relative text-[#fff] w-[100%] ml-[8px];
+    background-color: #0f1114;
+    border-radius: 12px;
+    box-shadow: 0 0 5px 0 rgb(46, 255, 180, 0.5);
+  }
+}

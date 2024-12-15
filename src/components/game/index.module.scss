@@ -1,0 +1,10 @@
+.app {
+  @apply bg-[#111] w-full h-full;
+  background-image: url("/bg.png");
+  background-size: cover;
+  :global {
+    .canvas {
+        @apply bg-[#497c69];
+    }
+  }
+}
