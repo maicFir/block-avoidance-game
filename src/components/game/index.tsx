@@ -4,31 +4,24 @@
  */
 "use client";
 import React, { memo, useEffect, useRef, useState } from "react";
-import { Box, Typography, Button } from "@mui/material";
-import {
-  RestartAlt as RestartAltIcon,
-  PlayCircleOutline as PlayCircleOutlineIcon,
-  StopCircle as StopCircleIcon,
-} from "@mui/icons-material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
 import useSound from "use-sound";
 import { message } from "@comp/global";
-import { CoinIcon, LiveIcon, VoiceIcon, CloseVoiceIcon } from "@comp/svg-icon";
-// import { queryGmgnSymbolListApi } from "@src/services/api";
 import { symbolData } from "@src/api/game/mock";
 import Help from "./help";
-import { Character } from "./character";
-import { FallingObject } from "./falling-object";
-
+import ToolBarPc from "./tool-bar/Pc";
+import ToolBarMobile from "./tool-bar/mobile";
+import Wheel from "./wheel";
+import { Character, FallingObject } from "./util";
 import style from "./index.module.scss";
 
 interface Props {}
 
 const Index: React.FC<Props> = (props) => {
   const {} = props;
+  const is_pc_media = useMediaQuery("(min-width:1025px)");
   const [play, { stop: stopGameStart }] = useSound("/mp3/game_start.mp3");
   const canvasDom = useRef<HTMLCanvasElement>(null);
-  const startDom = useRef<any>(null);
-  const resetDom = useRef<any>(null);
   // 游戏背景音乐
   const [gameVoice, setGameVoice] = useState(false);
   const [startText, setStartText] = useState("start"); // 开始or暂停
@@ -36,19 +29,23 @@ const Index: React.FC<Props> = (props) => {
   const [source, setSource] = useState(0);
   // 生命
   const [lifeTime, setLifeTime] = useState(3);
+  let startGame = useRef<any>(null);
+  let plauseGame = useRef<any>(null);
+  const character_obj = useRef<any>(null);
 
   useEffect(() => {
     const canvas: any = canvasDom.current;
     const ctx = canvas.getContext("2d");
-    canvas.width = 800; // 设置画布宽度
+    canvas.width = is_pc_media ? 800 : window.innerWidth; // 设置画布宽度
     canvas.height = 600; // 设置画布高度
-
+    console.log(is_pc_media, "=is_pc_media");
     // 初始化角色
     let character = new Character(
       canvas.width / 2 - 25,
       canvas.height - 50,
       canvas
     );
+    character_obj.current = character;
     let fallingObjects: any = [];
     let score = 0;
     let gameOver = false;
@@ -99,7 +96,7 @@ const Index: React.FC<Props> = (props) => {
       requestAnimationFrame(gameInit);
     };
     // 开始游戏
-    const againGame = () => {
+    startGame.current = () => {
       character = new Character(
         canvas.width / 2 - 25,
         canvas.height - 50,
@@ -114,7 +111,7 @@ const Index: React.FC<Props> = (props) => {
       gameInit();
     };
     // 暂停或者开始游戏
-    const plauseGame = () => {
+    plauseGame.current = () => {
       paused = !paused; // 切换暂停状态
       if (paused) {
         setStartText("pause");
@@ -129,7 +126,7 @@ const Index: React.FC<Props> = (props) => {
     window.addEventListener("keydown", (e) => {
       if (e.key === "ArrowLeft") left = true;
       if (e.key === "ArrowRight") right = true;
-      if (e.key === " " || e.key === "ArrowUp") character.jump();
+      if ([" ", "ArrowUp"].includes(e.key)) character.jump();
     });
     window.addEventListener("keyup", (e) => {
       if (e.key === "ArrowLeft") left = false;
@@ -138,19 +135,15 @@ const Index: React.FC<Props> = (props) => {
     // 监听空格键
     window.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        againGame();
+        plauseGame.current?.();
       }
     });
-    startDom.current.addEventListener("click", () => {
-      plauseGame();
-    });
-    // 重新开始
-    resetDom.current.addEventListener("click", () => {
-      againGame();
-    });
-    // 启动游戏
-    // gameInit();
-  }, []);
+
+    return () => {
+      window.removeEventListener("keydown", () => {});
+      window.removeEventListener("keyup", () => {});
+    };
+  }, [is_pc_media]);
 
   const handleOpen = () => {
     setGameVoice(!gameVoice);
@@ -160,89 +153,74 @@ const Index: React.FC<Props> = (props) => {
       stopGameStart();
     }
   };
+  const handleStart = () => {
+    plauseGame.current?.();
+  };
+  const handleReset = () => {
+    startGame.current?.();
+  };
+  const handleMoveLeft = () => {
+    character_obj.current.move(true, false);
+  };
+  const handleMoveRight = () => {
+    character_obj.current.move(false, true);
+  };
   return (
     <Box className={style["app"]} display={"flex"} justifyContent={"center"}>
       <Typography
         component={"div"}
-        width={"800px"}
+        width={is_pc_media ? "800px" : "640px"}
         bgcolor={"#e5e5e5"}
-        borderRadius={"20px"}
-        height={"700px"}
+        borderRadius={is_pc_media ? "20px" : "0px"}
         margin={"auto"}
+        overflow={"hidden"}
+        className="app-wrap"
       >
-        <Typography
-          component={"div"}
-          display={"flex"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-        >
-          <Typography
-            component={"div"}
-            padding={"10px"}
-            display={"grid"}
-            gridTemplateColumns={"1fr 1fr"}
-            gap={"10px"}
-          >
-            <Typography
-              display={"flex"}
-              alignItems={"center"}
-              component={"div"}
-              border={"1px solid #000"}
-              borderRadius={"20px"}
-              padding={"5px 10px"}
-              minWidth={"100px"}
-            >
-              <CoinIcon />: {source}
-            </Typography>
-            <Typography
-              component={"div"}
-              display={"flex"}
-              alignItems={"center"}
-              border={"1px solid #000"}
-              borderRadius={"20px"}
-              padding={"5px 10px"}
-              minWidth={"100px"}
-            >
-              <LiveIcon />: {lifeTime}
-            </Typography>
-          </Typography>
-          <Typography
-            component={"div"}
-            display={"flex"}
-            justifyContent={"center"}
-            alignItems={"center"}
-          >
-            <Button ref={startDom}>
-              {startText}{" "}
-              {startText === "start" ? (
-                <PlayCircleOutlineIcon />
-              ) : (
-                <StopCircleIcon />
-              )}
-            </Button>
-            <Button ref={resetDom}>
-              reset <RestartAltIcon />
-            </Button>
-            <Button onClick={handleOpen}>
-              {gameVoice ? <CloseVoiceIcon /> : <VoiceIcon />}
-            </Button>
-          </Typography>
+        {is_pc_media ? (
+          <ToolBarPc
+            source={source}
+            lifeTime={lifeTime}
+            startText={startText}
+            gameVoice={gameVoice}
+            handleOpen={handleOpen}
+            start={handleStart}
+            reset={handleReset}
+          />
+        ) : (
+          <ToolBarMobile
+            source={source}
+            lifeTime={lifeTime}
+            startText={startText}
+            gameVoice={gameVoice}
+            handleOpen={handleOpen}
+            start={handleStart}
+            reset={handleReset}
+          />
+        )}
+        <Typography component={"div"} className="canvas-wrap">
+          <canvas
+            className="canvas"
+            ref={canvasDom}
+            width={is_pc_media ? 800 : 640}
+            height={600}
+          ></canvas>
         </Typography>
-        <canvas
-          className="canvas"
-          ref={canvasDom}
-          width={800}
-          height={600}
-        ></canvas>
+
         <Typography
           display={"flex"}
           alignItems={"center"}
           justifyContent={"center"}
           paddingTop={"10px"}
+          component={"div"}
         >
           Please press Enter to start the game <Help />
         </Typography>
       </Typography>
+      {is_pc_media ? (
+        <></>
+      ) : (
+        <Wheel moveLeft={handleMoveLeft} moveRight={handleMoveRight} />
+      )}
     </Box>
   );
 };

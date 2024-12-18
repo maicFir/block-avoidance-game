@@ -1,0 +1,34 @@
+.start-button, .reset-button  {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 2em;
+    cursor: pointer;
+    transition: 0.1s ease;
+    border-width: 0;
+    box-shadow: 1px 5px 0 0 #0e285d;
+  
+}
+.start-button {
+    &:hover {
+        box-shadow: 1px 9px 0 0 #0050ec;
+    }
+}
+.reset-button {
+    &:hover {
+        box-shadow: 1px 9px 0 0 #0050ec;
+    }
+}
+.start-button {
+    background-color: #0050ec;
+  }
+  .reset-button {
+    background-color: #342425;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  .start-button:hover,
+  .reset-button:hover {
+    transform: translateY(-4px);
+  }

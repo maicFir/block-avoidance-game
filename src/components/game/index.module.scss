@@ -1,10 +1,53 @@
 .app {
-  @apply bg-[#111] w-full h-full;
+  @apply bg-[#111] w-full h-full overflow-x-hidden;
   background-image: url("/bg.png");
   background-size: cover;
   :global {
+    .start-button,
+    .reset-button {
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 2em;
+      cursor: pointer;
+      transition: 0.1s ease;
+      border-width: 0;
+      box-shadow: 1px 5px 0 0 #0e285d;
+    }
+    .start-button {
+      background-color: #0050ec;
+    }
+    .reset-button {
+      background-color: #342425;
+      margin-left: 5px;
+    }
+    .start-button:hover {
+      box-shadow: 1px 9px 0 0 #0050ec;
+    }
+    .reset-button:hover {
+      box-shadow: 1px 9px 0 0 #322525;
+    }
+
+    .start-button:hover,
+    .reset-button:hover {
+      transform: translateY(-4px);
+    }
+
+    .start-button:active,
+    .reset-button:active {
+      transform: translateY(4px);
+      box-shadow: 0px 0px 0 0 #0e285d;
+    }
+    .app-wrap {
+      @apply flex flex-col;
+    }
+    .canvas-wrap {
+      @apply flex-1;
+      height: calc(100vh - 90px);
+    }
     .canvas {
-        @apply bg-[#497c69];
+      @apply bg-[#497c69] h-full;
     }
   }
 }
