@@ -25,13 +25,27 @@ export class Character {
       this.image = new Image();
       this.image.src = "/role.png";
       this.image.onload = () => {
-        this.draw();
+        this.draw(this.ctx);
       };
     }
 
     move(left: boolean, right: boolean) {
-      if (left) this.x -= this.speed;
-      if (right) this.x += this.speed;
+
+        if (left) {
+            this.x -= this.speed;
+                    // 确保角色不会移出画布
+          if (this.x < 0) this.x = 0;
+          if (this.x > this.canvas.width - 50) this.x = this.canvas.width - 50;
+            return;
+      };
+        if (right) {
+            this.x += this.speed;
+                    // 确保角色不会移出画布
+          if (this.x < 0) this.x = 0;
+          if (this.x > this.canvas.width - 50) this.x = this.canvas.width - 50;
+            return;
+        };
+  
     }
 
     jump() {
@@ -51,8 +65,7 @@ export class Character {
       }
     }
 
-    draw() {
-      this.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-   
+    draw(ctx: any) {
+      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
   }

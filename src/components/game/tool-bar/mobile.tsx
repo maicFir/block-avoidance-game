@@ -33,22 +33,15 @@ const Pc = (props: Props) => {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popper" : undefined;
-  const handleStart = () => {
+  const handleStart = (e: any) => {
     start?.();
+    e.stopPropagation();
   };
-  const handleReset = () => {
+  const handleReset = (e: any) => {
     reset?.();
+    e.stopPropagation();
   };
-  useEffect(() => {
-    document.body.addEventListener("click", () => {
-      setAnchorEl(null);
-    });
-    return () => {
-      document.body.removeEventListener("click", () => {
-        setAnchorEl(null);
-      });
-    };
-  }, []);
+
   return (
     <Typography
       component={"div"}
@@ -93,7 +86,10 @@ const Pc = (props: Props) => {
         alignItems={"center"}
         padding={"0 10px"}
       >
-        <MenuIcon onClick={(e) => handleClick(e)}></MenuIcon>
+        <MenuIcon
+          className={anchorEl ? "rotate-90" : "rotate-180"}
+          onClick={(e) => handleClick(e)}
+        ></MenuIcon>
       </Typography>
       <Popper id={id} open={open} anchorEl={anchorEl}>
         <Box padding={"10px 0"} marginTop={"16px"}>

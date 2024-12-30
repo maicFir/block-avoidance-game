@@ -1,17 +1,13 @@
-/**
- * @description game
- * @author maicFir
- */
 "use client";
 import React, { memo, useEffect, useRef, useState } from "react";
 import { Box, Typography, useMediaQuery } from "@mui/material";
 import useSound from "use-sound";
 import { message } from "@comp/global";
+import { LeftIcon, RightIcon, TopIcon } from "@comp/svg-icon";
 import { symbolData } from "@src/api/game/mock";
 import Help from "./help";
 import ToolBarPc from "./tool-bar/Pc";
 import ToolBarMobile from "./tool-bar/mobile";
-import Wheel from "./wheel";
 import { Character, FallingObject } from "./util";
 import style from "./index.module.scss";
 
@@ -21,25 +17,26 @@ const Index: React.FC<Props> = (props) => {
   const {} = props;
   const is_pc_media = useMediaQuery("(min-width:1025px)");
   const [play, { stop: stopGameStart }] = useSound("/mp3/game_start.mp3");
+
   const canvasDom = useRef<HTMLCanvasElement>(null);
-  // 游戏背景音乐
   const [gameVoice, setGameVoice] = useState(false);
-  const [startText, setStartText] = useState("start"); // 开始or暂停
-  // 分数
+  const [startText, setStartText] = useState("start");
   const [source, setSource] = useState(0);
-  // 生命
   const [lifeTime, setLifeTime] = useState(3);
   let startGame = useRef<any>(null);
   let plauseGame = useRef<any>(null);
   const character_obj = useRef<any>(null);
 
+  // 按键状态
+  let left = false;
+  let right = false;
+
   useEffect(() => {
     const canvas: any = canvasDom.current;
     const ctx = canvas.getContext("2d");
-    canvas.width = is_pc_media ? 800 : window.innerWidth; // 设置画布宽度
-    canvas.height = 600; // 设置画布高度
-    console.log(is_pc_media, "=is_pc_media");
-    // 初始化角色
+    canvas.width = is_pc_media ? 800 : window.innerWidth;
+    canvas.height = 600;
+
     let character = new Character(
       canvas.width / 2 - 25,
       canvas.height - 50,
@@ -49,9 +46,7 @@ const Index: React.FC<Props> = (props) => {
     let fallingObjects: any = [];
     let score = 0;
     let gameOver = false;
-    let left = false,
-      right = false,
-      paused = false; // 暂停标识
+    let paused = false;
 
     const gameInit = () => {
       if (gameOver) {
@@ -62,14 +57,14 @@ const Index: React.FC<Props> = (props) => {
         });
         return;
       }
-      if (!paused) {
-        return;
-      }
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // 清除画布
-      // 控制角色
+      if (!paused) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 持续根据按键方向控制角色
       character.move(left, right);
       character.update();
-      character.draw();
+      character.draw(ctx);
 
       // 添加和更新掉落物体
       if (Math.random() < 0.05) {
@@ -78,23 +73,23 @@ const Index: React.FC<Props> = (props) => {
 
       fallingObjects.forEach((object: any, index: any) => {
         object.update();
-        object.draw();
+        object.draw(ctx);
 
         if (object.checkCollision(character)) {
           character.lives -= 1;
           setLifeTime(character.lives);
-          fallingObjects.splice(index, 1); // 移除已碰撞的物体
+          fallingObjects.splice(index, 1);
           if (character.lives <= 0) {
             gameOver = true;
           }
         }
       });
 
-      // 更新分数
       score += 1;
       setSource(score);
       requestAnimationFrame(gameInit);
     };
+
     // 开始游戏
     startGame.current = () => {
       character = new Character(
@@ -110,12 +105,13 @@ const Index: React.FC<Props> = (props) => {
       paused = true;
       gameInit();
     };
-    // 暂停或者开始游戏
+
+    // 暂停/开始游戏
     plauseGame.current = () => {
-      paused = !paused; // 切换暂停状态
+      paused = !paused;
       if (paused) {
         setStartText("pause");
-        gameInit(); // 恢复游戏循环
+        gameInit();
       } else {
         setStartText("start");
         stopGameStart();
@@ -123,25 +119,40 @@ const Index: React.FC<Props> = (props) => {
     };
 
     // 监听键盘事件
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") left = true;
-      if (e.key === "ArrowRight") right = true;
-      if ([" ", "ArrowUp"].includes(e.key)) character.jump();
-    });
-    window.addEventListener("keyup", (e) => {
-      if (e.key === "ArrowLeft") left = false;
-      if (e.key === "ArrowRight") right = false;
-    });
-    // 监听空格键
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        plauseGame.current?.();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        left = true;
       }
+      if (e.key === "ArrowRight") {
+        right = true;
+      }
+      if ([" ", "ArrowUp"].includes(e.key)) character.jump();
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        left = false;
+      }
+      if (e.key === "ArrowRight") {
+        right = false;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    document.getElementById("right-icon")?.addEventListener("click", () => {
+      right = true;
+      left = false;
+    });
+    document.getElementById("left-icon")?.addEventListener("click", () => {
+      left = true;
+      right = false;
     });
 
     return () => {
-      window.removeEventListener("keydown", () => {});
-      window.removeEventListener("keyup", () => {});
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [is_pc_media]);
 
@@ -153,18 +164,15 @@ const Index: React.FC<Props> = (props) => {
       stopGameStart();
     }
   };
+
   const handleStart = () => {
     plauseGame.current?.();
   };
+
   const handleReset = () => {
     startGame.current?.();
   };
-  const handleMoveLeft = () => {
-    character_obj.current.move(true, false);
-  };
-  const handleMoveRight = () => {
-    character_obj.current.move(false, true);
-  };
+
   return (
     <Box className={style["app"]} display={"flex"} justifyContent={"center"}>
       <Typography
@@ -216,10 +224,15 @@ const Index: React.FC<Props> = (props) => {
           Please press Enter to start the game <Help />
         </Typography>
       </Typography>
+
       {is_pc_media ? (
         <></>
       ) : (
-        <Wheel moveLeft={handleMoveLeft} moveRight={handleMoveRight} />
+        <Box className={style["wheel-app"]}>
+          <TopIcon className="top" />
+          <LeftIcon className="left" />
+          <RightIcon className="right" />
+        </Box>
       )}
     </Box>
   );

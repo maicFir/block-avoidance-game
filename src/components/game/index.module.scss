@@ -50,4 +50,20 @@
       @apply bg-[#497c69] h-full;
     }
   }
+  .wheel-app {
+    @apply w-[80px] h-[80px] p-[10px] border border-[#e5e5e5] rounded-full bg-[#557b6a] grid grid-cols-6;
+    @apply fixed right-[20px] bottom-[20%] z-[20];
+    :global {
+      .top {
+        @apply col-start-3 col-end-3;
+      }
+
+      .left {
+        @apply col-start-1 col-end-1;
+      }
+      .right {
+        @apply col-start-5 col-end-6;
+      }
+    }
+  }
 }
