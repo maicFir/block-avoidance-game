@@ -3,13 +3,12 @@
  */
 import { RandomPicker } from "@utils/index";
 
-const assetImages: any[] = [
+const assetImages: string[] = [
     "/meme/SHIKOKU.png",
     "/meme/ALAN.png",
     "/meme/AME.png",
     "/meme/NYANGUY.png",
     "/meme/petunia.png",
-    
     "/meme/TRUMPS.png",
 ];
 export class FallingObject {
@@ -22,7 +21,7 @@ export class FallingObject {
     private blockImage: any;
     private data: any;
     constructor(canvas: any, data: any) {
-      const blocks: any = new RandomPicker(data.data).getRandom();
+      // const blocks: any = new RandomPicker(data.data).getRandom();
       this.canvas = canvas;
       this.ctx = canvas.getContext("2d");
       this.x = Math.random() * canvas.width;
@@ -32,7 +31,6 @@ export class FallingObject {
       this.data = data;
       this.blockImage = new Image();
         //this.blockImage.src = "/bitCoin.png"; 
-      console.log(blocks)
         this.blockImage.src = assetImages[0];
         this.blockImage.onload = () => {
             this.draw(); // 只有在图片加载完成后调用绘制
