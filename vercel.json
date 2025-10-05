@@ -1,0 +1,44 @@
+{
+  "buildCommand": "pnpm run build",
+  "devCommand": "pnpm run dev",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "env": {
+    "AUTH_URL": "https://block-avoidance.iruns.xyz",
+    "NEXTAUTH_URL": "https://block-avoidance.iruns.xyz",
+    "NEXT_PUBLIC_NEXTAUTH_URL": "https://block-avoidance.iruns.xyz",
+    "AUTH_GOOGLE_ID": "140576991785-p7v28o6b96mhev7ttsones99oi6crcn3.apps.googleusercontent.com",
+    "GOOGLE_CLIENT_ID": "140576991785-p7v28o6b96mhev7ttsones99oi6crcn3.apps.googleusercontent.com",
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "140576991785-p7v28o6b96mhev7ttsones99oi6crcn3.apps.googleusercontent.com"
+  },
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth/$1"
+    }
+  ]
+}

@@ -3,8 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import { Box, Typography, Button } from "@mui/material";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default function AuthError() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
 
@@ -78,5 +79,26 @@ export default function AuthError() {
         </Button>
       </Box>
     </Box>
+  );
+}
+
+export default function AuthError() {
+  return (
+    <Suspense fallback={
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+        padding={3}
+      >
+        <Typography variant="h4" component="h1" gutterBottom>
+          加载中...
+        </Typography>
+      </Box>
+    }>
+      <AuthErrorContent />
+    </Suspense>
   );
 }
