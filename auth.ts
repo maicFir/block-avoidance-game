@@ -19,7 +19,8 @@ console.log("🌐 NextAuth v5 启动，环境配置:", {
 });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  debug: true, // 强制启用调试模式
+  debug: process.env.NODE_ENV === "development", // 只在开发环境启用调试
+  trustHost: true, // 信任 Vercel 的主机头
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID!,
@@ -43,12 +44,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.sub;
       }
       return session;
-    },
-    async jwt({ token, account }: { token: any; account: any }) {
-      if (account) token.accessToken = account.access_token;
+    },async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+      }
       return token;
-    },
-    async signIn() {
+    },async signIn() {
       return true; // 允许所有 Google 账号
     },
   },
@@ -57,10 +58,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60,
   },
   logger: {
-    error(code: any, metadata: any) {
-      console.error("❌ NextAuth Error", code, metadata);
+    error(error: Error) {
+      console.error("❌ NextAuth Error", error);
     },
-    debug(code: any, metadata: any) {
+    debug(code: any, metadata?: any) {
       console.log("🐛 NextAuth Debug", code, metadata);
     },
   },
