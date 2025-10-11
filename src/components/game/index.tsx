@@ -25,7 +25,8 @@ const Index: React.FC<Props> = (props) => {
   const [source, setSource] = useState(0);
   const [lifeTime, setLifeTime] = useState(3);
   let startGame = useRef<any>(null);
-  let plauseGame = useRef<any>(null);
+    let plauseGame = useRef<any>(null);
+    let timeStart = 0;
   const character_obj = useRef<any>(null);
 
   // 按键状态
@@ -62,7 +63,7 @@ const Index: React.FC<Props> = (props) => {
           console.log("game over");
           saveGameSesionApi({
             score,
-            duration: Date.now() - startGame.current.startTime,
+            duration: Date.now() - timeStart,
           })
         message.alert({
           type: "warning",
@@ -197,7 +198,8 @@ const Index: React.FC<Props> = (props) => {
     }
   };
 
-  const handleStart = () => {
+    const handleStart = () => {
+     timeStart = Date.now();
     plauseGame.current?.();
   };
 

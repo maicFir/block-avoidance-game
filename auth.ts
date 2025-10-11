@@ -6,6 +6,9 @@ import { SupabaseAdapter } from "@auth/supabase-adapter";
 import { createClient } from "@supabase/supabase-js";
 import { UserService } from "./lib/user-service";
 
+// 强制在 Node.js 运行时执行（避免 Edge 导致的网络与代理问题）
+export const runtime = 'nodejs';
+
 declare module "next-auth" {
   interface Session {
     user: {
@@ -24,10 +27,10 @@ console.log("🌐 NextAuth v5 启动，环境配置:", {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: process.env.NODE_ENV === "development", // 只在开发环境启用调试
   trustHost: true, // 信任 Vercel 的主机头
-  adapter: SupabaseAdapter({
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  }),
+  // adapter: SupabaseAdapter({
+  //   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  //   secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  // }),
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID!,
@@ -70,7 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   session: {
-    strategy: "database",
+    strategy: "jwt", // 临时使用 JWT 会话以绕过适配器数据库写入，便于定位问题
     maxAge: 30 * 24 * 60 * 60,
   },
   logger: {
