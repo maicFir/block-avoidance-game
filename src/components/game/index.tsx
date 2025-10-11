@@ -3,6 +3,7 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import { Box, Typography, useMediaQuery } from "@mui/material";
 import useSound from "use-sound";
 import { message } from "@comp/global";
+import { saveGameSesionApi } from "@/services/api/index"
 import { symbolData } from "./mock";
 import Help from "./help";
 import ToolBarPc from "./tool-bar/Pc";
@@ -58,7 +59,11 @@ const Index: React.FC<Props> = (props) => {
 
     const gameInit = () => {
       if (gameOver) {
-        console.log("game over");
+          console.log("game over");
+          saveGameSesionApi({
+            score,
+            duration: Date.now() - startGame.current.startTime,
+          })
         message.alert({
           type: "warning",
           msg: "game over, please reset again!",
