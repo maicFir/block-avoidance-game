@@ -40,7 +40,7 @@ export class UserService {
    * 获取用户游戏统计数据
    */
   static async getUserGameStats(userId: string): Promise<UserGameStats | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_game_stats')
       .select('*')
       .eq('user_id', userId)
@@ -58,7 +58,7 @@ export class UserService {
    * 创建或更新用户游戏统计
    */
   static async upsertUserGameStats(userId: string, stats: Partial<UserGameStats>): Promise<UserGameStats | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_game_stats')
       .upsert({
         user_id: userId,
@@ -77,10 +77,40 @@ export class UserService {
   }
 
   /**
+   * 确保用户存在于 users 表（用于满足外键约束）
+   */
+  static async ensureUserExists(userId: string): Promise<void> {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('id', userId)
+        .single()
+
+      // PGRST116: No rows found (PostgREST not found)
+      if (error && error.code === 'PGRST116') {
+        const { error: insertErr } = await supabaseAdmin
+          .from('users')
+          .insert({ id: userId })
+        if (insertErr) {
+          console.error('创建用户记录失败:', insertErr)
+        }
+      } else if (error) {
+        console.error('检查用户存在失败:', error)
+      }
+    } catch (e) {
+      console.error('ensureUserExists 异常:', e)
+    }
+  }
+
+  /**
    * 记录游戏会话
    */
   static async recordGameSession(userId: string, sessionData: Omit<GameSession, 'id' | 'user_id' | 'created_at'>): Promise<GameSession | null> {
-    const { data, error } = await supabase
+    // 在插入会话前确保用户存在
+    await this.ensureUserExists(userId)
+
+    const { data, error } = await supabaseAdmin
       .from('game_sessions')
       .insert({
         user_id: userId,
@@ -120,7 +150,7 @@ export class UserService {
    * 获取用户游戏历史
    */
   static async getUserGameHistory(userId: string, limit: number = 10): Promise<GameSession[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('game_sessions')
       .select('*')
       .eq('user_id', userId)
@@ -139,7 +169,7 @@ export class UserService {
    * 获取排行榜
    */
   static async getLeaderboard(limit: number = 10): Promise<Array<UserGameStats & { user: { name: string; image?: string } }>> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_game_stats')
       .select(`
         *,
@@ -160,7 +190,7 @@ export class UserService {
    * 获取用户偏好设置
    */
   static async getUserPreferences(userId: string): Promise<UserPreferences | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_preferences')
       .select('*')
       .eq('user_id', userId)
@@ -178,7 +208,7 @@ export class UserService {
    * 更新用户偏好设置
    */
   static async updateUserPreferences(userId: string, preferences: Partial<UserPreferences>): Promise<UserPreferences | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_preferences')
       .upsert({
         user_id: userId,

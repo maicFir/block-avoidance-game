@@ -18,10 +18,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '缺少必需的游戏数据' }, { status: 400 })
     }
 
+    // 统一将毫秒转换为秒，并保护范围（Postgres integer 最大值 2147483647）
+    const durationSec = Math.max(0, Math.min(Math.floor(duration / 1000), 2147483647))
+
     // 保存游戏会话
     const gameSession = await UserService.recordGameSession(session.user.id, {
       score,
-      duration,
+      duration: durationSec,
       level_reached: level_reached || 1,
       coins_collected: coins_collected || 0,
       obstacles_avoided: obstacles_avoided || 0,
